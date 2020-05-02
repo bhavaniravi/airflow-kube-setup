@@ -22,17 +22,17 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: airflow
-  namespace: airflow
+  namespace: airflow-example
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: airflow
+  namespace: airflow-example
   name: airflow
 rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["pods"]
-  verbs: ["get", "list", "watch", "create", "update"]
+  verbs: ["get", "list", "watch", "create", "update", "delete"]
 - apiGroups: ["batch", "extensions"]
   resources: ["jobs"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
@@ -42,11 +42,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: airflow
-  namespace: airflow
+  namespace: airflow-example
 subjects:
 - kind: ServiceAccount
   name: airflow # Name of the ServiceAccount
-  namespace: airflow
+  namespace: airflow-example
 roleRef:
   kind: Role # This must be Role or ClusterRole
   name: airflow # This must match the name of the Role or ClusterRole you wish to bind to
@@ -56,11 +56,11 @@ roleRef:
 # kind: ClusterRoleBinding
 # metadata:
 #   name: admin-rbac
-#   namespace: airflow
+#   namespace: airflow-example
 # subjects:
 #   - kind: ServiceAccount
 #     name: airflow
-#     namespace: airflow
+#     namespace: airflow-example
 # roleRef:
 #   kind: ClusterRole
 #   name: cluster-admin
@@ -70,7 +70,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: airflow
-  namespace: airflow
+  namespace: airflow-example
 spec:
   replicas: 1
   template:
@@ -89,8 +89,6 @@ spec:
           subPath: airflow.cfg
         - name: {{INIT_DAGS_VOLUME_NAME}}
           mountPath: /root/airflow/dags
-        - name: test-volume
-          mountPath: /root/test_volume
         env:
         - name: SQL_ALCHEMY_CONN
           valueFrom:
@@ -159,9 +157,6 @@ spec:
         emptyDir: {}
       - name: airflow-dags-git
         emptyDir: {}
-      - name: test-volume
-        persistentVolumeClaim:
-          claimName: test-volume
       - name: airflow-logs
         persistentVolumeClaim:
           claimName: airflow-logs
@@ -177,6 +172,5 @@ spec:
   type: LoadBalancer
   ports:
     - port: 8080
-      nodePort: 30809
   selector:
     name: airflow

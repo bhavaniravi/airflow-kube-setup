@@ -127,6 +127,8 @@ ${SED_COMMAND} -i "s|{{POD_AIRFLOW_DAGS_VOLUME_NAME}}|$POD_AIRFLOW_DAGS_VOLUME_N
 
 ${SED_COMMAND} "s|{{CONFIGMAP_DAGS_FOLDER}}|$CONFIGMAP_DAGS_FOLDER|g" \
     ${TEMPLATE_DIRNAME}/configmaps.template.yaml > ${BUILD_DIRNAME}/configmaps.yaml
+${SED_COMMAND} -i "s|{{AIRFLOW_IMAGE}}|$AIRFLOW_IMAGE|g" ${BUILD_DIRNAME}/configmaps.yaml
+${SED_COMMAND} -i "s|{{AIRFLOW_TAG}}|$AIRFLOW_TAG|g" ${BUILD_DIRNAME}/configmaps.yaml
 ${SED_COMMAND} -i "s|{{CONFIGMAP_GIT_REPO}}|$CONFIGMAP_GIT_REPO|g" ${BUILD_DIRNAME}/configmaps.yaml
 ${SED_COMMAND} -i "s|{{CONFIGMAP_BRANCH}}|$CONFIGMAP_BRANCH|g" ${BUILD_DIRNAME}/configmaps.yaml
 ${SED_COMMAND} -i "s|{{CONFIGMAP_GIT_DAGS_FOLDER_MOUNT_POINT}}|$CONFIGMAP_GIT_DAGS_FOLDER_MOUNT_POINT|g" ${BUILD_DIRNAME}/configmaps.yaml
@@ -175,45 +177,3 @@ else
   echo "PODS are not ready after waiting for a long time. Exiting..."
   exit 1
 fi
-
-# Wait until Airflow webserver is up
-# MINIKUBE_IP=$(minikube ip)
-AIRFLOW_WEBSERVER_IS_READY=0
-CONSECUTIVE_SUCCESS_CALLS=0
-for i in {1..30}
-do
-  HTTP_CODE=$(curl -LI http://${MINIKUBE_IP}:30809/health -o /dev/null -w '%{http_code}\n' -sS) || true
-  if [[ "$HTTP_CODE" == 200 ]]; then
-    let "CONSECUTIVE_SUCCESS_CALLS+=1"
-  else
-    CONSECUTIVE_SUCCESS_CALLS=0
-  fi
-  if [[ "$CONSECUTIVE_SUCCESS_CALLS" == 3 ]]; then
-    AIRFLOW_WEBSERVER_IS_READY=1
-    break
-  fi
-  sleep 10
-done
-
-if [[ "$AIRFLOW_WEBSERVER_IS_READY" == 1 ]]; then
-  echo "Airflow webserver is ready."
-else
-  echo "Airflow webserver is not ready after waiting for a long time. Exiting..."
-  exit 1
-fi
-
-POD=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | grep airflow | head -1)
-
-echo "------- pod description -------"
-kubectl describe pod $POD
-echo "------- webserver init container logs - init -------"
-kubectl logs $POD init
-if [ "${GIT_SYNC}" = 1 ]; then
-    echo "------- webserver init container logs - git-sync-clone -------"
-    kubectl logs $POD git-sync-clone
-fi
-echo "------- webserver logs -------"
-kubectl logs $POD webserver
-echo "------- scheduler logs -------"
-kubectl logs $POD scheduler
-echo "--------------"

@@ -19,36 +19,21 @@ FROM python:3.6-slim
 
 # install deps
 RUN apt-get update -y && apt-get install -y \
-        wget \
-        libczmq-dev \
-        curl \
-        libssl-dev \
-        git \
-        inetutils-telnet \
-        bind9utils \
-        zip \
-        unzip \
-        gcc \
-        vim \
+    libczmq-dev \
+    libssl-dev \
+    inetutils-telnet \
+    bind9utils \
+    gcc \
     && apt-get clean
 
 RUN pip install --upgrade pip
 
-# Since we install vanilla Airflow, we also want to have support for Postgres and Kubernetes
-RUN pip install -U setuptools && \
-    pip install kubernetes && \
-    pip install cryptography && \
-    pip install psycopg2-binary==2.7.4  # I had issues with older versions of psycopg2, just a warning
-
-# install airflow
-# COPY airflow.tar.gz /tmp/airflow.tar.gz
-# RUN pip install --no-use-pep517 /tmp/airflow.tar.gz
-RUN pip install apache-airflow==1.10.3
-RUN pip install werkzeug==0.15.4
+RUN pip install apache-airflow==1.10.10
+RUN pip install 'apache-airflow[kubernetes]'
+RUN pip install 'apache-airflow[postgres]'
 
 COPY airflow-test-env-init.sh /tmp/airflow-test-env-init.sh
 
 COPY bootstrap.sh /bootstrap.sh
 RUN chmod +x /bootstrap.sh
-
 ENTRYPOINT ["/bootstrap.sh"]

@@ -72,7 +72,7 @@ data:
     # The base url of your website as airflow cannot guess what domain or
     # cname you are using. This is used in automated emails that
     # airflow sends to point links to the right web server
-    base_url = http://localhost:8080
+    base_url = http://0.0.0.0:8080
     rbac=True
 
     # The ip specified when starting the web server
@@ -155,11 +155,11 @@ data:
 
     [kubernetes]
     airflow_configmap = airflow-configmap
-    worker_container_repository = $IMAGE
-    worker_container_tag = 0.0.1
+    worker_container_repository = {{AIRFLOW_IMAGE}}
+    worker_container_tag = {{AIRFLOW_TAG}}
     worker_container_image_pull_policy = Always
     worker_service_account_name = airflow
-    namespace = airflow
+    namespace = airflow-example
     delete_worker_pods = True
     dags_in_image = False
     git_repo = https://github.com/{{CONFIGMAP_GIT_REPO}}.git
@@ -312,7 +312,7 @@ data:
 
     [cli]
     api_client = airflow.api.client.json_client
-    endpoint_url = http://localhost:8080
+    endpoint_url = http://0.0.0.0:8080
 
     [api]
     auth_backend = airflow.api.auth.backend.default
