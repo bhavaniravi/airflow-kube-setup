@@ -27,4 +27,4 @@ The other supported modes is `git_mode`
 
 ## Walkthrough blog
 
-Coming soon!
+[Deploying airflow on kubernetes](https://bhavaniravi.com/blog/deploying-airflow-on-kubernetes/)
