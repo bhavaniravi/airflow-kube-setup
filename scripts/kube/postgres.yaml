@@ -16,11 +16,14 @@
 #  under the License.                                           *
 
 kind: Deployment
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 metadata:
   name: postgres-airflow
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: postgres-airflow
   template:
     metadata:
       labels:
