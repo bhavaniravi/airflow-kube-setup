@@ -90,7 +90,7 @@ spec:
       serviceAccountName: airflow
       initContainers:
         - name: "init"
-          image: 817836881741.dkr.ecr.eu-west-1.amazonaws.com/k8s/airflow:0.0.1
+          image:
           imagePullPolicy: Always
           volumeMounts:
             - name: airflow-configmap
@@ -112,7 +112,7 @@ spec:
 
       containers:
         - name: webserver
-          image: 817836881741.dkr.ecr.eu-west-1.amazonaws.com/k8s/airflow:0.0.1
+          image:
           imagePullPolicy: Always
           ports:
             - name: webserver
@@ -137,7 +137,7 @@ spec:
             - name: airflow-logs
               mountPath: /root/airflow/logs
         - name: scheduler
-          image: 817836881741.dkr.ecr.eu-west-1.amazonaws.com/k8s/airflow:0.0.1
+          image: 
           imagePullPolicy: Always
           args: ["scheduler"]
           env:
