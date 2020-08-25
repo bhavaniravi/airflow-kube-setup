@@ -36,7 +36,7 @@ metadata:
   namespace: airflow-example
   name: airflow
 rules:
-  - apiGroups: [""]  # "" indicates the core API group
+  - apiGroups: [""] # "" indicates the core API group
     resources: ["pods"]
     verbs: ["get", "list", "watch", "create", "update", "delete"]
   - apiGroups: ["batch", "extensions"]
@@ -50,7 +50,7 @@ metadata:
   namespace: airflow-example
 subjects:
   - kind: ServiceAccount
-    name: airflow  # Name of the ServiceAccount
+    name: airflow # Name of the ServiceAccount
     namespace: airflow-example
 roleRef:
   kind: Role  # This must be Role or ClusterRole
@@ -90,7 +90,7 @@ spec:
       serviceAccountName: airflow
       initContainers:
         - name: "init"
-          image:  
+          image:
           imagePullPolicy: Always
           volumeMounts:
             - name: airflow-configmap
