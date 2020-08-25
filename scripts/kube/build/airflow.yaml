@@ -53,9 +53,9 @@ subjects:
     name: airflow # Name of the ServiceAccount
     namespace: airflow-example
 roleRef:
-  kind: Role  # This must be Role or ClusterRole
-  name: airflow   # This must match the name of the Role
-                  #   or ClusterRole you wish to bind to
+  kind: Role # This must be Role or ClusterRole
+  name: airflow # This must match the name of the Role
+                #   or ClusterRole you wish to bind to
   apiGroup: rbac.authorization.k8s.io
 # ---
 # apiVersion: rbac.authorization.k8s.io/v1beta1
