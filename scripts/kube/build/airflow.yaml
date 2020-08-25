@@ -18,6 +18,12 @@
 # Note: The airflow image used in this example is obtained by
 # building the image from the local docker subdirectory.
 
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: airflow-example
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -48,7 +54,8 @@ subjects:
     namespace: airflow-example
 roleRef:
   kind: Role # This must be Role or ClusterRole
-  name: airflow # This must match the name of the Role or ClusterRole you wish to bind to
+  name: airflow # This must match the name of the Role
+                #   or ClusterRole you wish to bind to
   apiGroup: rbac.authorization.k8s.io
 # ---
 # apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -65,13 +72,16 @@ roleRef:
 #   name: cluster-admin
 #   apiGroup: rbac.authorization.k8s.io
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: airflow
   namespace: airflow-example
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: airflow
   template:
     metadata:
       labels:
