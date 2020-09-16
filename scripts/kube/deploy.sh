@@ -146,9 +146,11 @@ fi
 kubectl delete -f $DIRNAME/postgres.yaml
 kubectl delete -f $BUILD_DIRNAME/airflow.yaml
 kubectl delete -f $DIRNAME/secrets.yaml
+kubectl delete -f $DIRNAME/namespace.yaml
 
 set -e
 
+kubectl apply -f $DIRNAME/namespace.yaml
 kubectl apply -f $DIRNAME/secrets.yaml
 kubectl apply -f $BUILD_DIRNAME/configmaps.yaml
 kubectl apply -f $DIRNAME/postgres.yaml
