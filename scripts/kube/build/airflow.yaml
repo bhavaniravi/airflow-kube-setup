@@ -31,23 +31,22 @@ metadata:
   namespace: airflow-example
   name: airflow
 rules:
-- apiGroups: [""] # "" indicates the core API group
-  resources: ["pods"]
-  verbs: ["get", "list", "watch", "create", "update", "delete"]
-- apiGroups: ["batch", "extensions"]
-  resources: ["jobs"]
-  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-  
----  
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "create", "update", "delete"]
+  - apiGroups: ["batch", "extensions"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: airflow
   namespace: airflow-example
 subjects:
-- kind: ServiceAccount
-  name: airflow # Name of the ServiceAccount
-  namespace: airflow-example
+  - kind: ServiceAccount
+    name: airflow # Name of the ServiceAccount
+    namespace: airflow-example
 roleRef:
   kind: Role # This must be Role or ClusterRole
   name: airflow # This must match the name of the Role
@@ -68,7 +67,7 @@ roleRef:
 #   name: cluster-admin
 #   apiGroup: rbac.authorization.k8s.io
 ---
-apiVersion: apps/v1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: airflow
@@ -85,91 +84,89 @@ spec:
     spec:
       serviceAccountName: airflow
       initContainers:
-      - name: "init"
-        image: pequetrefe/airflow:0.0.1
-        imagePullPolicy: Always
-        volumeMounts:
-        - name: airflow-configmap
-          mountPath: /root/airflow/airflow.cfg
-          subPath: airflow.cfg
-        - name: airflow-dags
-          mountPath: /root/airflow/dags
-        env:
-        - name: SQL_ALCHEMY_CONN
-          valueFrom:
-            secretKeyRef:
-              name: airflow-secrets
-              key: sql_alchemy_conn
-        command:
-          - "bash"
-        args:
-          - "-cx"
-          - "./tmp/airflow-test-env-init.sh "
+        - name: "init"
+          image:
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: airflow-configmap
+              mountPath: /root/airflow/airflow.cfg
+              subPath: airflow.cfg
+            - name: airflow-dags
+              mountPath: /root/airflow/dags
+          env:
+            - name: SQL_ALCHEMY_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-secrets
+                  key: sql_alchemy_conn
+          command:
+            - "bash"
+          args:
+            - "-cx"
+            - "./tmp/airflow-test-env-init.sh"
+
       containers:
-      - name: webserver
-        image: pequetrefe/airflow:0.0.1
-        imagePullPolicy: Always
-        ports:
         - name: webserver
-          containerPort: 8080
-        args: ["webserver"]
-        env:
-        - name: AIRFLOW_KUBE_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: SQL_ALCHEMY_CONN
-          valueFrom:
-            secretKeyRef:
-              name: airflow-secrets
-              key: sql_alchemy_conn
-        volumeMounts:
-        - name: airflow-configmap
-          mountPath: /root/airflow/airflow.cfg
-          subPath: airflow.cfg
-        - name: airflow-dags
-          mountPath: /root/airflow/dags
-        - name: airflow-logs
-          mountPath: /root/airflow/logs
-      - name: scheduler
-        image: pequetrefe/airflow:0.0.1
-        imagePullPolicy: Always
-        args: ["scheduler"]
-        env:
-        - name: AIRFLOW_KUBE_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: SQL_ALCHEMY_CONN
-          valueFrom:
-            secretKeyRef:
-              name: airflow-secrets
-              key: sql_alchemy_conn
-        volumeMounts:
-        - name: airflow-configmap
-          mountPath: /root/airflow/airflow.cfg
-          subPath: airflow.cfg
-        - name: airflow-dags
-          mountPath: /root/airflow/dags
-        - name: airflow-logs
-          mountPath: /root/airflow/logs
+          image:
+          imagePullPolicy: Always
+          ports:
+            - name: webserver
+              containerPort: 8080
+          args: ["webserver"]
+          env:
+            - name: AIRFLOW_KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: SQL_ALCHEMY_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-secrets
+                  key: sql_alchemy_conn
+          volumeMounts:
+            - name: airflow-configmap
+              mountPath: /root/airflow/airflow.cfg
+              subPath: airflow.cfg
+            - name: airflow-dags
+              mountPath: /root/airflow/dags
+            - name: airflow-logs
+              mountPath: /root/airflow/logs
+        - name: scheduler
+          image:
+          imagePullPolicy: Always
+          args: ["scheduler"]
+          env:
+            - name: AIRFLOW_KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: SQL_ALCHEMY_CONN
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-secrets
+                  key: sql_alchemy_conn
+          volumeMounts:
+            - name: airflow-configmap
+              mountPath: /root/airflow/airflow.cfg
+              subPath: airflow.cfg
+            - name: airflow-dags
+              mountPath: /root/airflow/dags
+            - name: airflow-logs
+              mountPath: /root/airflow/logs
       volumes:
-      - name: airflow-dags
-        persistentVolumeClaim:
-          claimName: airflow-dags
-      - name: airflow-dags-fake
-        emptyDir: {}
-      - name: airflow-dags-git
-        emptyDir: {}
-      - name: airflow-logs
-        persistentVolumeClaim:
-          claimName: airflow-logs
-      - name: airflow-configmap
-        configMap:
-          name: airflow-configmap
-  selector:
-    matchLabels:
-      name: airflow
+        - name: airflow-dags
+          persistentVolumeClaim:
+            claimName: airflow-dags
+        - name: airflow-dags-fake
+          emptyDir: {}
+        - name: airflow-dags-git
+          emptyDir: {}
+        - name: airflow-logs
+          persistentVolumeClaim:
+            claimName: airflow-logs
+        - name: airflow-configmap
+          configMap:
+            name: airflow-configmap
 ---
 apiVersion: v1
 kind: Service
