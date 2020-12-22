@@ -66,7 +66,7 @@ roleRef:
 #   name: cluster-admin
 #   apiGroup: rbac.authorization.k8s.io
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: airflow
@@ -75,6 +75,8 @@ spec:
   replicas: 1
   template:
     metadata:
+    selector:
+    name: airflow
       labels:
         name: airflow
     spec:
