@@ -51,28 +51,17 @@ roleRef:
   kind: Role # This must be Role or ClusterRole
   name: airflow # This must match the name of the Role or ClusterRole you wish to bind to
   apiGroup: rbac.authorization.k8s.io
-# ---
-# apiVersion: rbac.authorization.k8s.io/v1beta1
-# kind: ClusterRoleBinding
-# metadata:
-#   name: admin-rbac
-#   namespace: airflow-example
-# subjects:
-#   - kind: ServiceAccount
-#     name: airflow
-#     namespace: airflow-example
-# roleRef:
-#   kind: ClusterRole
-#   name: cluster-admin
-#   apiGroup: rbac.authorization.k8s.io
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: airflow
   namespace: airflow-example
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: airflow
   template:
     metadata:
       labels:
