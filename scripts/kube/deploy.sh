@@ -19,7 +19,7 @@
 
 set -x
 
-AIRFLOW_IMAGE=$IMAGE
+AIRFLOW_IMAGE=gcr.io/deeplearning-181416/airflow-cdh:0.0.1
 AIRFLOW_TAG=0.0.1
 DIRNAME=$(cd "$(dirname "$0")"; pwd)
 TEMPLATE_DIRNAME=${DIRNAME}/templates
@@ -143,13 +143,14 @@ if [[ "${TRAVIS}" == true ]]; then
   sudo chown -R travis.travis $HOME/.kube $HOME/.minikube
 fi
 
-kubectl delete -f $DIRNAME/postgres.yaml
-kubectl delete -f $BUILD_DIRNAME/airflow.yaml
-kubectl delete -f $DIRNAME/secrets.yaml
+kubectl apply -f $DIRNAME/namespace.yaml
+
+# kubectl delete -f $DIRNAME/postgres.yaml
+# kubectl delete -f $BUILD_DIRNAME/airflow.yaml
+# kubectl delete -f $DIRNAME/secrets.yaml
 
 set -e
 
-kubectl apply -f $DIRNAME/namespace.yaml
 kubectl apply -f $DIRNAME/secrets.yaml
 kubectl apply -f $BUILD_DIRNAME/configmaps.yaml
 kubectl apply -f $DIRNAME/postgres.yaml

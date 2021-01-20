@@ -18,6 +18,12 @@
 # Note: The airflow image used in this example is obtained by
 # building the image from the local docker subdirectory.
 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: airflow
+  namespace: airflow-example
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -82,7 +88,8 @@ spec:
           - "bash"
         args:
           - "-cx"
-          - "./tmp/airflow-test-env-init.sh {{INIT_GIT_SYNC}}"
+          - "./tmp/airflow-test-env-init.sh"
+{{INIT_GIT_SYNC}}
       containers:
       - name: webserver
         image: {{AIRFLOW_IMAGE}}:{{AIRFLOW_TAG}}
@@ -145,9 +152,6 @@ spec:
       - name: airflow-configmap
         configMap:
           name: airflow-configmap
-  selector:
-    matchLabels:
-      name: airflow
 ---
 apiVersion: v1
 kind: Service
