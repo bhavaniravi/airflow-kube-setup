@@ -45,6 +45,20 @@ roleRef:
   kind: Role # This must be Role or ClusterRole
   name: airflow # This must match the name of the Role or ClusterRole you wish to bind to
   apiGroup: rbac.authorization.k8s.io
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1beta1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: admin-rbac
+#   namespace: airflow-example
+# subjects:
+#   - kind: ServiceAccount
+#     name: airflow
+#     namespace: airflow-example
+# roleRef:
+#   kind: ClusterRole
+#   name: cluster-admin
+#   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -53,9 +67,6 @@ metadata:
   namespace: airflow-example
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      name: airflow
   template:
     metadata:
       labels:
@@ -64,13 +75,13 @@ spec:
       serviceAccountName: airflow
       initContainers:
       - name: "init"
-        image: {{AIRFLOW_IMAGE}}:{{AIRFLOW_TAG}}
+        image: pequetrefe/airflow:0.0.1
         imagePullPolicy: Always
         volumeMounts:
         - name: airflow-configmap
           mountPath: /root/airflow/airflow.cfg
           subPath: airflow.cfg
-        - name: {{INIT_DAGS_VOLUME_NAME}}
+        - name: airflow-dags
           mountPath: /root/airflow/dags
         env:
         - name: SQL_ALCHEMY_CONN
@@ -82,10 +93,10 @@ spec:
           - "bash"
         args:
           - "-cx"
-          - "./tmp/airflow-test-env-init.sh {{INIT_GIT_SYNC}}"
+          - "./tmp/airflow-test-env-init.sh "
       containers:
       - name: webserver
-        image: {{AIRFLOW_IMAGE}}:{{AIRFLOW_TAG}}
+        image: pequetrefe/airflow:0.0.1
         imagePullPolicy: Always
         ports:
         - name: webserver
@@ -105,12 +116,12 @@ spec:
         - name: airflow-configmap
           mountPath: /root/airflow/airflow.cfg
           subPath: airflow.cfg
-        - name: {{POD_AIRFLOW_DAGS_VOLUME_NAME}}
+        - name: airflow-dags
           mountPath: /root/airflow/dags
         - name: airflow-logs
           mountPath: /root/airflow/logs
       - name: scheduler
-        image: {{AIRFLOW_IMAGE}}:{{AIRFLOW_TAG}}
+        image: pequetrefe/airflow:0.0.1
         imagePullPolicy: Always
         args: ["scheduler"]
         env:
@@ -127,7 +138,7 @@ spec:
         - name: airflow-configmap
           mountPath: /root/airflow/airflow.cfg
           subPath: airflow.cfg
-        - name: {{POD_AIRFLOW_DAGS_VOLUME_NAME}}
+        - name: airflow-dags
           mountPath: /root/airflow/dags
         - name: airflow-logs
           mountPath: /root/airflow/logs

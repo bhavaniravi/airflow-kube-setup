@@ -155,7 +155,7 @@ data:
 
     [kubernetes]
     airflow_configmap = airflow-configmap
-    worker_container_repository = 
+    worker_container_repository = pequetrefe/airflow
     worker_container_tag = 0.0.1
     worker_container_image_pull_policy = Always
     worker_service_account_name = airflow

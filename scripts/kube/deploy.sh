@@ -149,6 +149,7 @@ kubectl delete -f $DIRNAME/secrets.yaml
 
 set -e
 
+kubectl apply -f $DIRNAME/namespace.yaml
 kubectl apply -f $DIRNAME/secrets.yaml
 kubectl apply -f $BUILD_DIRNAME/configmaps.yaml
 kubectl apply -f $DIRNAME/postgres.yaml
