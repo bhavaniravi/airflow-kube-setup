@@ -143,7 +143,9 @@ if [[ "${TRAVIS}" == true ]]; then
   sudo chown -R travis.travis $HOME/.kube $HOME/.minikube
 fi
 
+
 kubectl apply -f $DIRNAME/namespace.yaml
+kubectl config set-context --current --namespace=airflow-example 
 
 # kubectl delete -f $DIRNAME/postgres.yaml
 # kubectl delete -f $BUILD_DIRNAME/airflow.yaml
