@@ -1,5 +1,7 @@
 # Airflow Kubernetes Setup
 
+> This setup is used and tested in airflow 1.10.10. If you are setting up airflow for the first time use 2.x versions which has lot more features and is stable. It also comes with helm chart
+
 The setup files are copied directly from airflow's repo and modified to fit the requirements.
 
 One major change is instead of building the docker image from source, we use `pip` to install airflow
