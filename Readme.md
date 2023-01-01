@@ -1,6 +1,6 @@
 # Airflow Kubernetes Setup
 
-> This setup is used and tested in airflow 1.10.10. If you are setting up airflow for the first time use 2.x versions which has lot more features and is stable. It also comes with helm chart
+> This setup is used and tested in airflow 1.10.10. It's a good idea to use latest version of Airflow 2.3.x+. Need help setting up infrastructure and training your team? Contact me bhavanicodes@gmail.com 
 
 The setup files are copied directly from airflow's repo and modified to fit the requirements.
 
